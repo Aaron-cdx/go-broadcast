@@ -3,7 +3,6 @@ Package broadcast provides pubsub of messages over channels.
 
 A provider has a Broadcaster into which it Submits messages and into
 which subscribers Register to pick up those messages.
-
 */
 package broadcast
 
@@ -32,7 +31,12 @@ type Broadcaster interface {
 
 func (b *broadcaster) broadcast(m interface{}) {
 	for ch := range b.outputs {
-		ch <- m
+		// if exist one output consume the chan message is too slow,
+		// will block other output receive the msg.
+		select {
+		case ch <- m:
+		default:
+		}
 	}
 }
 

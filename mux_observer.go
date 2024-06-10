@@ -48,7 +48,12 @@ func (m *MuxObserver) Close() error {
 
 func (m *MuxObserver) broadcast(to taggedObservation) {
 	for ch := range m.subs[to.sub] {
-		ch <- to.ob
+		// if exist one output consume the chan message is too slow,
+		// will block other output receive the msg.
+		select {
+		case ch <- to.ob:
+		default:
+		}
 	}
 }
 
